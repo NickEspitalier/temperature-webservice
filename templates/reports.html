@@ -11,18 +11,34 @@
         <h1 class="blog-header-logo text-dark" style="text-align: center"> Temp and Humidity</h1>
         <p class="lead" style="text-align: center">This is a humidity and temperature page welcome</p>
             <div class="table-responsive">
+                <h2>Temperature</h2>
+                <table class="table">
+                    <thead class="thead-dark" style="vertical-align:bottom">
+                        <tr>
+                        <th scope="col">Date Time</th>
+                        <th scope="col" >Temperature</th>
+                        </tr>
+                    </thead>
+                        {% for row in temp_data %}
+                        <tr>
+                        <td>{{row['date_time']}}</td>
+                        <td>{{row['temp_result']}}</td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <h2>Humidity</h2>
                 <table class="table">
                     <thead class="thead-dark" style="vertical-align:bottom">
                         <tr>
                         <th scope="col">Date Time</th>
                         <th scope="col">Humidity</th>
-                        <th scope="col" >Temperature</th>
                         </tr>
                     </thead>
-                        {% for row in result_data %}
+                        {% for row in hum_data %}
                         <tr>
                         <td>{{row['date_time']}}</td>
-                        <td>{{row['temp_result']}}</td>
                         <td>{{row['hum_result']}}</td>
                         </tr>
                         {% endfor %}
@@ -30,6 +46,28 @@
                 </table>
             <!--    IMPORTANT TO CHANGE BUTTON PRESS TO CORRECT FILE-->
                 <p class="lead"><a class="btn btn-dark btn-lg" href="/" role="button">REFRESH</a></p>
+<br>
+                <hr>
+
+                <h3>Humidity Archive</h3>
+                <form action="{{ url_for('dateRangehumidity') }}" method="POST">
+                    <label>Start date:</label>
+                <input type="date" id="from" name="from" min="2021-12-01" required/>
+                    <label>End date:</label>
+                    <input type="date" id="to" name="to" min="2021-12-01" required/>
+                <input type="submit" value="submit">
+                </form>
+<br>
+                <hr>
+
+                <h3>Temp Archive</h3>
+                <form action="{{ url_for('dateRangetemp') }}" method="POST">
+                    <label>Start date:</label>
+                <input type="date" id="tempfrom" name="from" min="2021-12-01"required/>
+                    <label>End date:</label>
+                    <input type="date" id="tempto" name="to" min="2021-12-01"required/>
+                <input type="submit" value="submit">
+                </form>
             </div>
             <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>

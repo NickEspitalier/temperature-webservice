@@ -30,7 +30,8 @@ def insert_report():
     hum = request.json["hum_result"]
     date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     insertData(date, temp, hum)
-    return app.response_class(response="Success", status=201)
+    #changed to 200 to match rasp-pi code
+    return app.response_class(response="Success", status=200)
 
 
 @app.errorhandler(404)
