@@ -195,7 +195,7 @@ def get_latest_temperature_android():
 
 
 @app.route('/get/last/humidity', methods=['GET'])
-def get_all_humidity_android():
+def get_latest_humidity_android():
     return jsonify(select_last_humidity_android());
 
 
