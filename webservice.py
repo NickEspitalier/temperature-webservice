@@ -1,23 +1,23 @@
 import json
 import mysql.connector
 from flask import Flask, request, jsonify, render_template
-# import uuid
-# import jwt
-# from werkzeug.security import generate_password_hash, check_password_hash
-# import datetime
+#import uuid
+#import jwt
+#from werkzeug.security import generate_password_hash, check_password_hash
+#import datetime
 
 app = Flask(__name__)
 
-# this is the secret token
-#app.config['SECRET_KEY'] = 'myS3cr3tK3y'
+
+#this is the secret token
+app.config['SECRET_KEY'] = 'myS3cr3tK3y'
 
 
-# this is to connect to the database on pythonanywhere
+
+#this is to connect to the database on pythonanywhere
 def db_connect():
     try:
-        db_connection = mysql.connector.connect(host="NickEspitalier.mysql.pythonanywhere-services.com",
-                                                user="NickEspitalier", password="CloudyJJ12",
-                                                database="NickEspitalier$finalprojectiot")
+        db_connection = mysql.connector.connect(host="NickEspitalier.mysql.pythonanywhere-services.com", user="NickEspitalier", password="CloudyJJ12", database="NickEspitalier$finalprojectiot")
         # If connection is not successful
     except:
         print("Can't connect to database")
@@ -29,7 +29,9 @@ def db_connect():
     return db_connection
 
 
-# this is where the data from the raspberry pi is posted in the service
+
+
+#this is where the data from the raspberry pi is posted in the service
 @app.route('/post/report', methods=['POST'])
 def insert_report():
     temp = request.json["temp_result"]
@@ -39,7 +41,8 @@ def insert_report():
     return app.response_class(response="Success", status=201)
 
 
-# this is how the temperature is stored inside the temperature table in the database of the service
+
+#this is how the temperature is stored inside the temperature table in the database of the service
 def insertTemperatureAndHumidity(temp, hum):
     conn = db_connect()
 
@@ -61,7 +64,9 @@ def insertTemperatureAndHumidity(temp, hum):
     conn.close()
 
 
-# this is how the data is being displayed on the main menu when appearing on main menu
+
+
+#this is how the data is being displayed on the main menu when appearing on main menu
 @app.route("/", methods=['GET'])
 def get_all_data():
     temperature_data = getTemperature()
@@ -77,7 +82,8 @@ def get_all_data():
         return render_template('error.html', error_message=message)
 
 
-# this is where you get all the temperatures sent to the database
+
+#this is where you get all the temperatures sent to the database
 def getTemperature():
     conn = db_connect()
     mycurs = conn.cursor()
@@ -91,7 +97,7 @@ def getTemperature():
         date_time = row[2].strftime("%Y-%m-%d %H:%M:%S")
         posted = row[3]
         temperatures.append({'id': id, 'temp_result': temp_result,
-                             'date_time': date_time, 'posted': posted})
+                     'date_time': date_time, 'posted': posted})
         r = json.dumps(temperatures)
 
     mycurs.close()
@@ -99,7 +105,8 @@ def getTemperature():
     return r
 
 
-# this is where you get all the humidities sent to the database
+
+#this is where you get all the humidities sent to the database
 def getHumidity():
     conn = db_connect()
     mycurs = conn.cursor()
@@ -113,7 +120,7 @@ def getHumidity():
         date_time = row[2].strftime("%Y-%m-%d %H:%M:%S")
         posted = row[3]
         humidities.append({'id': id, 'hum_result': hum_result,
-                           'date_time': date_time, 'posted': posted})
+                     'date_time': date_time, 'posted': posted})
         r = json.dumps(humidities)
 
     mycurs.close()
@@ -121,9 +128,11 @@ def getHumidity():
     return r
 
 
-# display the latest temperature and humidity on the website
+
+#display the latest temperature and humidity on the website
 @app.route("/getlatest", methods=['GET'])
 def return_temperature_in_table():
+
     temperature = getLatestTemp()
     humidity = getLatestHum()
 
@@ -137,7 +146,8 @@ def return_temperature_in_table():
         return render_template('error.html', error_message=message)
 
 
-# get latest temperature
+
+#get latest temperature
 def getLatestTemp():
     conn = db_connect()
     mycurs = conn.cursor()
@@ -157,7 +167,7 @@ def getLatestTemp():
     return r
 
 
-# get latest humidity
+#get latest humidity
 def getLatestHum():
     conn = db_connect()
     mycurs = conn.cursor()
@@ -176,12 +186,50 @@ def getLatestHum():
     return r
 
 
-# @app.route('/get', methods=['GET'])
-# def get_last():
+
+
+@app.route('/get/last/temperature', methods=['GET'])
+def get_latest_temperature_android():
+    return jsonify(select_last_temperature_android());
+
+
+
+@app.route('/get/last/humidity', methods=['GET'])
+def get_all_humidity_android():
+    return jsonify(select_last_humidity_android());
+
+
+def select_last_temperature_android():
+    conn = db_connect()
+    mycurs = conn.cursor()
+    mycurs.execute("SELECT * FROM temperature ORDER BY id DESC LIMIT 1")
+    my_result = mycurs.fetchall()
+    return my_result;
+
+
+def select_last_humidity_android():
+    conn = db_connect()
+    mycurs = conn.cursor()
+    mycurs.execute("SELECT * FROM humidity ORDER BY id DESC LIMIT 1")
+    my_result = mycurs.fetchall()
+    return my_result;
+
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({'error': 'not found'}), 404
+
+
+
+#the code below is the attempt we tried to do for the authorization and to display a full list of data in the android application
+
+#@app.route('/get', methods=['GET'])
+#def get_last():
 #    return jsonify(getLatestData())
 
 
-# def getLatestData():
+#def getLatestData():
 #    conn = mysql.connector.Connect(host="NickEspitalier.mysql.pythonanywhere-services.com", user="NickEspitalier",
 #                                   password="CloudyJJ12", database="NickEspitalier$finalprojectiot")
 #    mycurs = conn.cursor()
@@ -191,9 +239,9 @@ def getLatestHum():
 #    return data;
 
 
-# this is the request to create a new user
-# @app.route('/register', methods=['POST'])
-# def signup_user():
+#this is the request to create a new user
+#@app.route('/register', methods=['POST'])
+#def signup_user():
 
 #    user_name = request.json["user_name"]
 #    password = request.json["password"]
@@ -202,8 +250,9 @@ def getLatestHum():
 #    return app.response_class(response="Success", status=201)
 
 
-# this is the method where the user information is formatted and sent to the database
-# def insert_user(user_name, password):
+
+#this is the method where the user information is formatted and sent to the database
+#def insert_user(user_name, password):
 
 #    conn = db_connect()
 #    mycurs = conn.cursor(dictionary=True)
@@ -223,9 +272,11 @@ def getLatestHum():
 #    conn.close()
 
 
-# this is the request to login to the main page
-# @app.route('/login', methods=['GET'])
-# def login_user():
+
+
+#this is the request to login to the main page
+#@app.route('/login', methods=['GET'])
+#def login_user():
 
 #    conn = db_connect()
 #    mycurs = conn.cursor(dictionary=True)
@@ -243,6 +294,7 @@ def getLatestHum():
 #    user = mycurs.execute(sql_statement, value)
 
 
+
 #    if check_password_hash(user.password, auth.password):
 #        token = jwt.encode(
 #            {'user_id': user.user_id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
@@ -253,31 +305,34 @@ def getLatestHum():
 #    return make_response('Could not verify', 401, {'WWW.Authentication': 'Basic Realm: "login incorrect"'})
 
 
-# this is the request to get temperature between two date range
-# @app.route("/temperature", methods=['POST', 'GET'])
-# def dateRangeTempAndHum():
-
-# if request.method == 'POST':
-#    start = request.args.get('start')
-#    finish = request.args.get('finish')
-
-#    temperature = getDataRangeTemp(start, finish)
-#    humidity = getDataRangeHum(start, finish)
 
 
-#    t = json.loads(temperature)
-#    h = json.loads(humidity)
+#this is the request to get temperature between two date range
+#@app.route("/temperature", methods=['POST', 'GET'])
+#def dateRangeTempAndHum():
 
-# else:
-#    if temperature != None:
-#        return render_template('reports.html', temperature=t, humidity=h)
-#    else:
-#        message = "An error in retrieving the data has occurred"
-#        return render_template('error.html', error_message=message)
+    #if request.method == 'POST':
+    #    start = request.args.get('start')
+    #    finish = request.args.get('finish')
+
+    #    temperature = getDataRangeTemp(start, finish)
+    #    humidity = getDataRangeHum(start, finish)
 
 
-# this is the select statement to get temperatures between two datetimes
-# def getDataRangeTemp(start, finish):
+    #    t = json.loads(temperature)
+    #    h = json.loads(humidity)
+
+    #else:
+    #    if temperature != None:
+    #        return render_template('reports.html', temperature=t, humidity=h)
+    #    else:
+    #        message = "An error in retrieving the data has occurred"
+    #        return render_template('error.html', error_message=message)
+
+
+
+#this is the select statement to get temperatures between two datetimes
+#def getDataRangeTemp(start, finish):
 
 #    conn = db_connect()
 #    mycurs = conn.cursor()
@@ -300,8 +355,9 @@ def getLatestHum():
 #    return r
 
 
-# this is the select statement to get humidities between two datetimes
-# def getDataRangeHum(start, finish):
+
+#this is the select statement to get humidities between two datetimes
+#def getDataRangeHum(start, finish):
 #    conn = db_connect()
 #    mycurs = conn.cursor()
 #    data = []
@@ -319,6 +375,33 @@ def getLatestHum():
 #    return r
 
 
-@app.errorhandler(404)
-def not_found(error):
-    return jsonify({'error': 'not found'}), 404
+
+
+
+#@app.route('/get/all/temperature', methods=['GET'])
+#def get_latest_temperature_android():
+#    return jsonify(select_all_temperature_android());
+
+
+
+#@app.route('/get/all/humidity', methods=['GET'])
+#def get_all_humidity_android():
+#    return jsonify(select_all_humidity_android());
+
+
+#def select_all_temperature_android():
+#    conn = db_connect()
+#    mycurs = conn.cursor()
+#    mycurs.execute("SELECT * FROM temperature ORDER BY id DESC")
+#    my_result = mycurs.fetchall()
+#    return my_result;
+
+
+#def select_all_humidity_android():
+#    conn = db_connect()
+#    mycurs = conn.cursor()
+#    mycurs.execute("SELECT * FROM humidity ORDER BY id DESC")
+#    my_result = mycurs.fetchall()
+#    return my_result;
+
+
